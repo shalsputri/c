@@ -22,7 +22,7 @@ function getstr($str, $exp1, $exp2)
 	$a = explode($exp1, $str)[1];
 	return explode($exp2, $a)[0];
 }
-echo "NO HP: ";
+echo "NO HP: 0895611636732";
 $nohp = trim(fgets(STDIN));
 $url = "http://bonstri.tri.co.id/api/v1/login/request-otp";
 $data = "{\"msisdn\":\"$nohp\"}";
