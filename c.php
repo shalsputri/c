@@ -1,148 +1,113 @@
 <?php
-date_default_timezone_set('Asia/Jakarta');
-include "function.php";
-echo color("green","# # # # # # # # # # # # # # # # # # # # # # # \n");
-echo color("yellow","[•]  Time  : ".date('[d-m-Y] [H:i:s]')."   \n");
-echo color("yellow","[•]              waiting proses.....           \n");
-echo color("yellow","[•] cara menulis nomor pakai 62xxxxxxxxxx \n");
-echo color("green","# # # # # # # # # # # # # # # # # # # # # # # \n");
-function change(){
-        $nama = nama();
-        $email = str_replace(" ", "", $nama) . mt_rand(100, 999);
-        ulang:
-        echo color("nevy","(•) Nomor : ");
-        $no = trim(fgets(STDIN));
-        $data = '{"email":"'.$email.'@gmail.com","name":"'.$nama.'","phone":"+'.$no.'","signed_up_country":"ID"}';
-        $register = request("/v5/customers", null, $data);
-        if(strpos($register, '"otp_token"')){
-        $otptoken = getStr('"otp_token":"','"',$register);
-        echo color("green","+] Kode verifikasi sudah di kirim")."\n";
-        otp:
-        echo color("nevy","?] Otp: ");
-        $otp = trim(fgets(STDIN));
-        $data1 = '{"client_name":"gojek:cons:android","data":{"otp":"' . $otp . '","otp_token":"' . $otptoken . '"},"client_secret":"83415d06-ec4e-11e6-a41b-6c40088ab51e"}';
-        $verif = request("/v5/customers/phone/verify", null, $data1);
-        if(strpos($verif, '"access_token"')){
-        echo color("green","+] Berhasil mendaftar");
-        $token = getStr('"access_token":"','"',$verif);
-        $uuid = getStr('"resource_owner_id":',',',$verif);
-        echo "\n".color("yellow","+] Your access token : ".$token."\n\n");
-        save("token.txt",$token);
-        echo "\n".color("nevy","?] Mau Redeem Voucher?: y/n ");
-        $pilihan = trim(fgets(STDIN));
-        if($pilihan == "y" || $pilihan == "Y"){
-        echo color("red","===========(REDEEM VOUCHER)===========");
-        echo "\n".color("yellow","!] Claim voc GORIDE 8K");
-        echo "\n".color("yellow","!] Please wait");
-        for($a=1;$a<=3;$a++){
-        echo color("yellow",".");
-        sleep(3);
-        }
-        $code1 = request('/go-promotions/v1/promotions/enrollments', $token, '{"promo_code":"COBAGORIDEPAY"}');
-        $message = fetch_value($code1,'"message":"','"');
-        if(strpos($code1, 'Promo kamu sudah bisa dipakai')){
-        echo "\n".color("green","+] Message: ".$message);
-        goto gocar;
-        }else{
-        echo "\n".color("red","-] Message: ".$message);
-        gocar:
-        echo "\n".color("yellow","!] Claim voc GOFOOD 15+10+5");
-        echo "\n".color("yellow","!] Please wait");
-        for($a=1;$a<=3;$a++){
-        echo color("yellow",".");
-        sleep(20);
-        }
-        $code1 = request('/go-promotions/v1/promotions/enrollments', $token, '{"promo_code":"COBAGOFOOD010420A"}');
-        $message = fetch_value($code1,'"message":"','"');
-        if(strpos($code1, 'Promo kamu sudah bisa dipakai')){
-        echo "\n".color("green","+] Message: ".$message);
-        goto gofood;
-        }else{
-        echo "\n".color("red","-] Message: ".$message);
-        reff:
-        $data = '{"referral_code":"G-75SR565"}';    
-        $claim = request("/customer_referrals/v1/campaign/enrolment", $token, $data);
-        $message = fetch_value($claim,'"message":"','"');
-        if(strpos($claim, 'Promo kamu sudah bisa dipakai')){
-        echo "\n".color("green","+] Message: ".$message);
-        goto gofood;
-        }else{
-        echo "\n".color("red","-] Message: ".$message);
-        }
-        gofood:
-        echo "\n".color("yellow","!] Claim voc GOCAR pot 14K");
-        echo "\n".color("yellow","!] Please wait");
-        for($a=1;$a<=3;$a++){
-        echo color("yellow",".");
-        sleep(3);
-        }
-        $code1 = request('/go-promotions/v1/promotions/enrollments', $token, '{"promo_code":"COBAGOCAR14"}');
-        $message = fetch_value($code1,'"message":"','"');
-        if(strpos($code1, 'Promo kamu sudah bisa dipakai')){
-        echo "\n".color("green","+] Message: ".$message);
-        sleep(1);
-        sleep(3);
-        $cekvoucher = request('/gopoints/v3/wallet/vouchers?limit=10&page=1', $token);
-        $total = fetch_value($cekvoucher,'"total_vouchers":',',');
-        $voucher3 = getStr1('"title":"','",',$cekvoucher,"3");
-        $voucher1 = getStr1('"title":"','",',$cekvoucher,"1");
-        $voucher2 = getStr1('"title":"','",',$cekvoucher,"2");
-        $voucher4 = getStr1('"title":"','",',$cekvoucher,"4");
-        $voucher5 = getStr1('"title":"','",',$cekvoucher,"5");
-        $voucher6 = getStr1('"title":"','",',$cekvoucher,"6");
-        echo "\n".color("yellow","!] Total voucher ".$total." : ");
-        echo color("green","1. ".$voucher1);
-        echo "\n".color("green","                     2. ".$voucher2);
-        echo "\n".color("green","                     3. ".$voucher3);
-        echo "\n".color("green","                     4. ".$voucher4);
-        echo "\n".color("green","                     5. ".$voucher5);
-        echo "\n".color("green","                     6. ".$voucher6);
-        $expired1 = getStr1('"expiry_date":"','"',$cekvoucher,'1');
-        $expired2 = getStr1('"expiry_date":"','"',$cekvoucher,'2');
-        $expired3 = getStr1('"expiry_date":"','"',$cekvoucher,'3');
-        $expired4 = getStr1('"expiry_date":"','"',$cekvoucher,'4');
-        $expired5 = getStr1('"expiry_date":"','"',$cekvoucher,'5');
-        $expired6 = getStr1('"expiry_date":"','"',$cekvoucher,'6');
-         setpin:
-         echo "\n".color("nevy","?] Mau set pin?: y/n ");
-         $pilih1 = trim(fgets(STDIN));
-         if($pilih1 == "y" || $pilih1 == "Y"){
-         //if($pilih1 == "y" && strpos($no, "628")){
-         echo color("red","========( PIN ANDA = KEPO DEHH.... )========")."\n";
-         $data2 = '{"pin":"192211"}';
-         $getotpsetpin = request("/wallet/pin", $token, $data2, null, null, $uuid);
-         echo "Otp set pin: ";
-         $otpsetpin = trim(fgets(STDIN));
-         $verifotpsetpin = request("/wallet/pin", $token, $data2, null, $otpsetpin, $uuid);
-         echo $verifotpsetpin;
-         }else if($pilih1 == "n" || $pilih1 == "N"){
-         die();
-         }else{
-         echo color("red","-] GAGAL!!!\n");
-         }
-         }
-         }
-         }
-         }else{
-         goto setpin;
-         }
-         }else{
-         echo color("red","-] Otp yang anda input salah");
-         echo"\n==================================\n\n";
-         echo color("yellow","!] Silahkan input kembali\n");
-         goto otp;
-         }
-         }else{
-         echo color("red","NOMOR SUDAH TERDAFTAR/SALAH !!!");
-         echo "\nMau ulang? (y/n): ";
-         $pilih = trim(fgets(STDIN));
-         if($pilih == "y" || $pilih == "Y"){
-         echo "\n==============Register==============\n";
-         goto ulang;
-         }else{
-         echo "\n==============Register==============\n";
-         goto ulang;
-  }
- }
+function request($url, $data = null, $headers = null, $put = null)
+{
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	if($put):
+	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+	endif;
+	if($data):
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+	endif;
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	if($headers):
+	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+	endif;
+	curl_setopt($ch, CURLOPT_ENCODING, "GZIP");
+	return curl_exec($ch);
 }
-echo change()."\n"; ?>
+function getstr($str, $exp1, $exp2)
+{
+	$a = explode($exp1, $str)[1];
+	return explode($exp2, $a)[0];
+}
+echo "NO HP: ";
+$nohp = trim(fgets(STDIN));
+$url = "http://bonstri.tri.co.id/api/v1/login/request-otp";
+$data = "{\"msisdn\":\"$nohp\"}";
+$len = strlen($data);
+$headers = array();
+$headers[] = "Host: bonstri.tri.co.id";
+$headers[] = "User-Agent: Mozilla/5.0 (Linux; Android 7.0; SM-G892A Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/67.0.3396.87 Mobile Safari/537.36";
+$headers[] = "Accept: application/json, text/plain, */*";
+$headers[] = "Accept-Language: en-US,en;q=0.5";
+$headers[] = "Accept-Encoding: gzip, deflate";
+$headers[] = "Content-Type: application/json";
+$headers[] = "Content-Length: $len";
+$headers[] = "Origin: http://bonstri.tri.co.id";
+$headers[] = "DNT: 1";
+$headers[] = "Connection: close";
+$headers[] = "Referer: http://bonstri.tri.co.id/login?returnUrl=%2Fhome";
+$headers[] = "Cookie: TS0100d305=0162c9cb494eec12bb5ebd5a0cf9d600d03ff497d0dd6544efb7c8bcd36ba3bf7656a4845cbaa6e8685ebdbda2e6f9b0ded9926243";
+$getotp = request($url, $data, $headers);
+
+echo "OTP: ";
+$otp = trim(fgets(STDIN));
+$url = "http://bonstri.tri.co.id/api/v1/login/validate-otp";
+$data = "grant_type=password&username=$nohp&password=$otp";
+$len = strlen($data);
+$headers = array();
+$headers[] = "Host: bonstri.tri.co.id";
+$headers[] = "User-Agent: Mozilla/5.0 (Linux; Android 7.0; SM-G892A Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/67.0.3396.87 Mobile Safari/537.36";
+$headers[] = "Accept: application/json, text/plain, */*";
+$headers[] = "Accept-Language: en-US,en;q=0.5";
+$headers[] = "Accept-Encoding: gzip, deflate";
+$headers[] = "Authorization: Basic Ym9uc3RyaTpib25zdHJpc2VjcmV0";
+$headers[] = "Content-Type: application/x-www-form-urlencoded";
+$headers[] = "Content-Length: $len";
+$headers[] = "Origin: http://bonstri.tri.co.id";
+$headers[] = "DNT: 1";
+$headers[] = "Connection: close";
+$headers[] = "Referer: http://bonstri.tri.co.id/login?returnUrl=%2Fhome";
+$headers[] = "Cookie: TS0100d305=0162c9cb494eec12bb5ebd5a0cf9d600d03ff497d0dd6544efb7c8bcd36ba3bf7656a4845cbaa6e8685ebdbda2e6f9b0ded9926243";
+$login = request($url, $data, $headers);
+$bearer = getstr($login, '"access_token":"','"');
+
+$url = "http://bonstri.tri.co.id/api/v1/voucherku/voucher-history";
+$data = "{}";
+$headers = array();
+$headers[] = "Host: bonstri.tri.co.id";
+$headers[] = "User-Agent: Mozilla/5.0 (Linux; Android 7.0; SM-G892A Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/67.0.3396.87 Mobile Safari/537.36";
+$headers[] = "Accept: application/json, text/plain, */*";
+$headers[] = "Accept-Language: en-US,en;q=0.5";
+$headers[] = "Accept-Encoding: gzip, deflate";
+$headers[] = "Authorization: Bearer $bearer";
+$headers[] = "Content-Type: application/json";
+$headers[] = "Content-Length: 2";
+$headers[] = "Origin: http://bonstri.tri.co.id";
+$headers[] = "Connection: close";
+$headers[] = "Referer: http://bonstri.tri.co.id/voucherku";
+$headers[] = "Cookie: _ga=GA1.3.2053671532.1587780555; _gid=GA1.3.888559198.1587780555; TS0100d305=0162c9cb49e0d157a2c80ae96556c73d3bea058f3c536b787d6659d580e73a70a6f3a02af9a84533df5bea7f93242a4490a524d4b3; _gat_gtag_UA_128593534_1=1";
+$gettrx = request($url, $data, $headers);
+$trxid = getstr($gettrx, 'GB 1 Hari (Jam 01:00 - 12:00)","rewardTransactionId":"','"');
+
+tembak:
+echo "[?] Tembak Berapa : ";
+$loop = trim(fgets(STDIN));
+for ($x = 0; $x < $loop; $x++) {
+$rand = substr(str_shuffle(str_repeat('0123456789', mt_rand(1,3))), 1, 3);
+$url = "http://bonstri.tri.co.id/api/v1/voucherku/get-voucher-code";
+$data = "{\"rewardId\":\"2311180$rand\",\"rewardTransactionId\":\"$trxid\"}";
+$headers = array();
+$headers[] = "Host: bonstri.tri.co.id";
+$headers[] = "Accept: application/json, text/plain, */*";
+$headers[] = "Authorization: Bearer $bearer";
+$headers[] = "User-Agent: Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Mobile Safari/537.36";
+$headers[] = "Content-Type: application/json";
+$headers[] = "Origin: http://bonstri.tri.co.id";
+$headers[] = "Referer: http://bonstri.tri.co.id/voucherku";
+$headers[] = "Accept-Encoding: gzip, deflate";
+$headers[] = "Accept-Language: id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7,ms;q=0.6";
+$headers[] = "Cookie: _ga=GA1.3.770946611.1584431943; _gid=GA1.3.168000598.1584431943; TS0100d305=0162c9cb490990834a7708193e20bbd775eae933ce3e50f34503ef106b69d7ceacc5ecf66e5fb6ca7a51870037152284bafaf2991d";
+$headers[] = "Connection: close";
+$exec = request($url, $data, $headers);
+if(strpos($exec, '"data":"Success"') !== false)
+{
+	echo "Success Tembak!\n";
+}
+else
+{
+	echo "Failed Tembak!";
+}
+}
